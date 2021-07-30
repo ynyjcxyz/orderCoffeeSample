@@ -9,11 +9,13 @@ package com.example.android.justjava;
  **/
 
 
+import android.content.Intent;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 /**
@@ -44,13 +46,25 @@ public class MainActivity extends AppCompatActivity {
         TextView nameView = (TextView) findViewById(R.id.text_input_name);
         String inputName = nameView.getText().toString();
 
-        int price = calculatePrice();
+        int price = calculatePrice(hasWhippedCream,hasChocolate);
         String message = createOrderSummary(inputName,price,hasWhippedCream,hasChocolate);
-        displayMessage(message);
+        //displayMessage(message);
+        sendMessageToEmail(inputName,message);
     }
 
-    private int calculatePrice() {
-        int price = quantity * 5 ;
+
+    private int calculatePrice(boolean hasWhippedCream,boolean hasChocolate) {
+        int toppingPrice = 0;
+
+        if(hasWhippedCream && !hasChocolate){
+            toppingPrice = 1;
+        }else if(!hasWhippedCream && hasChocolate){
+            toppingPrice = 2;
+        }else if(hasWhippedCream && hasChocolate){
+            toppingPrice = 3;
+        }
+
+        int price = quantity * (5 + toppingPrice);
         return price;
     }
 
@@ -76,19 +90,48 @@ public class MainActivity extends AppCompatActivity {
 
     //Make sure increment and decrement are both public method
     public void increment(View view){
+        if(quantity == 100){
+            Toast.makeText(this, "You cannot have more than 100 coffees", Toast.LENGTH_SHORT).show();
+            return;
+        }
         quantity = quantity + 1;
         displayQuantity(quantity);
     }
 
+    //This is the method that I can understand
     public void decrement(View view){
         quantity = quantity - 1;
-        if(quantity>0) { displayQuantity(quantity);}
-        else {quantity = 1;};
+        if(quantity > 0) {
+            displayQuantity(quantity);
+        } else {
+            quantity = 1;
+            Toast.makeText(this, "You cannot have less than 1 coffee", Toast.LENGTH_SHORT).show();
+        }
     }
 
-    /**
-     * This method displays the given quantity value on the screen.
-     */
+    /** This is the official method that lesson teach
+    public void decrement(View view){
+        if (quantity == 1){
+            Toast.makeText(this, "You cannot have less than 1 coffee", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        quantity = quantity - 1;
+        displayQuantity(quantity);
+    }
+    */
+
+    /** This is the method that use the shortest line of codes
+   public void decrement(View view){
+       if(quantity > 1){
+           displayQuantity(--quantity);
+       }
+   }
+    */
+
+
+ /**
+  * This method displays the given quantity value on the screen.
+  */
     private void displayQuantity(int number) {
         TextView quantityTextView = (TextView) findViewById(R.id.quantity_text_view);
         quantityTextView.setText("" + number);
@@ -98,6 +141,15 @@ public class MainActivity extends AppCompatActivity {
     private void displayMessage(String message){
         TextView orderSummaryTextView = (TextView)findViewById(R.id.order_summary_text_view);
         orderSummaryTextView.setText(message);
+    }
+
+    private void sendMessageToEmail(String inputName,String message){
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.setType("text/plain");
+        intent.putExtra(Intent.EXTRA_SUBJECT, "Just Java order for " + inputName);
+        intent.putExtra(Intent.EXTRA_TEXT,message);
+        startActivity(intent);
+        //startActivity(Intent.createChooser(intent,"Send Email"));
     }
 
 }
