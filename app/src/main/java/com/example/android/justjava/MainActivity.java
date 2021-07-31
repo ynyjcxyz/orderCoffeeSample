@@ -137,11 +137,13 @@ public class MainActivity extends AppCompatActivity {
         quantityTextView.setText("" + number);
     }
 
-    //This method displays the given text on the screen
+    /** This method displays the given text on the screen
     private void displayMessage(String message){
         TextView orderSummaryTextView = (TextView)findViewById(R.id.order_summary_text_view);
         orderSummaryTextView.setText(message);
     }
+    */
+
 
     private void sendMessageToEmail(String inputName,String message){
         Intent intent = new Intent(Intent.ACTION_SEND);
